@@ -1,7 +1,7 @@
 Games::Die
 ===========
 
-Version: 0.03
+Version: 0.04
 
 
 
@@ -30,9 +30,10 @@ use Games::Die::Dice;
 $dice = new Games::Die::Dice(8, 8);     # a pair of 8-sided dice
 @values = $dice->roll;                  # get rolls from each die
 
-$dice2 = new Games::Die::Dice("2d8");   # same as above, but using
-                                        #   "d" representation
-$sum = $dice2->roll;                    # get sum of both rolls
+$dice2 = new Games::Die::Dice("2d8+1"); # pair of 8-sided dice,
+                                        #   with a +1 adjustment
+$sum = $dice2->roll;                    # get sum of both dice,
+                                        #   including the adjustment
 
 $dice3 = new Games::Die::Dice(5,17,42); # !???
 
@@ -53,5 +54,7 @@ Authors:
 
 Thanks to:
 
-  Thomas R. Sibley	For pointing out the poor roll() implementation in 0.02
+  Dave Ranney		Finding the stupid minus-one bug in roll() in 0.03
+  Thomas R. Sibley	Pointing out the poor roll() implementation in 0.02
+  Ricardo Signes	+/- modifiers for "d" representation
 

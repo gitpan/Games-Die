@@ -25,7 +25,7 @@ die if the mood strikes you.  There is no limit to the number of sides.
 use strict;
 use vars qw($VERSION);
 
-$VERSION = 0.03;
+$VERSION = 0.04;
 
 =head1 CONSTRUCTOR
 
@@ -84,7 +84,7 @@ Rolls the die and returns the number that came up.
 sub roll {
   my $self = shift;
 
-  return 1 + int(rand() * ($self->{sides}-1));
+  return int(rand($self->{sides})) + 1;
 }
 
 =head1 AUTHORS

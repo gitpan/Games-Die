@@ -1,3 +1,10 @@
+0.04 - fixed minus-one bug, added +/- modfifiers
+==========
+- Fixed bug where a die would never roll its maximum value.  I introduced
+  this in 0.03 somehow and never caught it.  I thought I had a grasp on
+  basic arithmetic by now...
+- Added Ricardo Signes' +/-N adjustment to "d" style specifier (e.e. 2d8+1)
+
 0.03 - fixed random number generation
 ==========
 - Wrote Die::roll the right way so there is no longer a limit to the number

@@ -30,7 +30,8 @@ new()
 
 Creates a new set of Dice.  Takes a list containing the number of sides of
 each die in the set, or a single "Dungeons and Dragons"-style specification
-such as "2d8" or "6d20".  (the d may be upper- or lower-case)
+such as "2d8" or "6d20+2".  The d may be upper- or lower-case, and the
+modifier may be a positive or negative integer.
 
 =back
 
@@ -42,13 +43,15 @@ sub new {
 
   my $self = {
     diceset => [],
+    adjust  => 0,
   };
 
   bless $self, $class;
 
-  # check for "xdy" or "xDy"
-  if (@sides == 1 and $sides[0] =~ /^(\d+)d(\d+)$/i) {
+  # check for "xDy" with optional +/-N suffix (case insensitive)
+  if (@sides == 1 and $sides[0] =~ /^(\d+)d(\d+)([-+]\d+)?$/i) {
     @sides = ($2) x $1;
+    $self->{adjust} = $3 if defined $3;
   }
 
   foreach my $numsides (@sides) {
@@ -78,6 +81,7 @@ sub roll {
   foreach my $die (@{$self->{diceset}}) {
     push(@values, $die->roll());
   }
+  push @values, $self->{adjust};
 
   if (wantarray) {
     return @values;
