@@ -1,11 +1,14 @@
 use strict;
-use Test::More tests => 14;
+use Test::More tests => 16;
 
 BEGIN { use_ok("Games::Die"); }
 
 {
+	our $warning;
+	local $SIG{__WARN__} = sub { $warning = shift };
 	my $die = Games::Die->new("bananaphone");
 	is($die, undef, "invalid sides for die");
+	like($warning, qr/non-negative/, "got correct warning");
 }
 
 {
@@ -13,7 +16,12 @@ BEGIN { use_ok("Games::Die"); }
 	isa_ok($die, 'Games::Die');
 
 	cmp_ok($die->sides,     '==',  6, "six-sided die created");
-	    is($die->sides("x"),   undef, "can't change to invalid sides");
+
+	our $warning;
+	local $SIG{__WARN__} = sub { $warning = shift };
+	is($die->sides("x"),   undef, "can't change to invalid sides");
+	like($warning, qr/non-negative/, "got correct warning");
+
 	cmp_ok($die->sides,     '==',  6, "still a six-sided die");
 }
 

@@ -4,9 +4,11 @@ use strict;
 use warnings;
 
 use Games::Die; 
+use Games::Die::Dice::Result; 
+use Carp;
 
 use vars qw($VERSION);
-$VERSION = 0.06;
+$VERSION = '0.07_01';
 
 =head1 NAME
 
@@ -18,9 +20,9 @@ Games::Die::Dice provides a union of any number of Games::Die objects.
 
 =head1 VERSION
 
-version 0.06
+version 0.07_01
 
- $Id: Dice.pm,v 1.3 2004/10/13 23:52:07 rjbs Exp $
+ $Id: Dice.pm,v 1.5 2004/10/19 03:52:28 rjbs Exp $
 
 =head1 SYNOPSIS
 
@@ -40,32 +42,43 @@ modifier may be a positive or negative integer.
 
 =cut
 
-sub new {
-	my $class = shift;
-	my @sides = @_;
+sub _expand_spec {
+	my ($self) = @_;
 
-	my $self = {
-		diceset => [],
-		adjust	=> 0,
-	};
-
-	bless $self, $class;
-
-	# check for "xDy" with optional +/-N suffix (case insensitive)
-	if (@sides == 1 and $sides[0] =~ /^(\d+)d(\d+)([-+]\d+)?$/i) {
-		@sides = ($2) x $1;
+	if ($self->{dice}[0] =~ /^(\d+)d(\d+)([-+]\d+)?$/i) {
+		$self->{dice} = [ ($2) x $1 ];
 		$self->{adjust} = $3 if defined $3;
 	}
+}
 
-	foreach my $numsides (grep { $_ =~ /^\d+$/ } @sides) {
-		push(@{$self->{diceset}}, new Games::Die($numsides));
-	}
+sub new {
+	my $class = shift;
+
+	bless my $self = { adjust => 0, dice => [ @_ ] } => $class;
+
+	$self->_expand_spec if @_ == 1;
+
+	$self->{dice} = [
+		map { UNIVERSAL::isa($_, 'Games::Die') ? $_ : Games::Die->new($_) }
+		@{$self->{dice}}
+	];
 	
-	return unless @{$self->{diceset}};
+	return unless @{$self->{dice}};
 	return $self;
 }
 
-=head2 C<< roll() >>
+=head2 C<< dice >>
+
+This returns a list of the Games::Die objects in the set.
+
+=cut
+
+sub dice {
+	my ($self) = @_;
+	@{$self->{dice}};
+}
+
+=head2 C<< roll >>
 
 Rolls each die in the set.	In scalar context, returns the sum.	In list
 context, returns the list of values that came up on each die (and also
@@ -76,19 +89,12 @@ the adjust value if specified).
 sub roll {
 	my $self = shift;
 
-	my @values = map { $_->roll } @{$self->{diceset}};
+	$self->{last_result} = Games::Die::Dice::Result->new(
+		rolls => [ map { $_->roll } @{$self->{dice}} ],
+		adjust => $self->{adjust}
+	);
 
-	push @values, $self->{adjust} if $self->{adjust};
-
-	if (wantarray) {
-		return @values;
-	} else {
-		my $sum = 0;
-		foreach my $value (@values) {
-			$sum += $value;
-		}
-		return $sum;
-	}
+	$self->{last_result}->value;
 }
 
 =head1 AUTHORS

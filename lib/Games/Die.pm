@@ -6,8 +6,7 @@ use warnings;
 use Carp;
 
 use vars qw($VERSION);
-
-$VERSION = 0.06;
+$VERSION = '0.07_01';
 
 =head1 NAME
 
@@ -15,9 +14,9 @@ Games::Die - a die; you can roll it!
 
 =head1 VERSION
 
-version 0.06
+version 0.07.01
 
- $Id: Die.pm,v 1.3 2004/10/13 23:52:07 rjbs Exp $
+ $Id: Die.pm,v 1.5 2004/10/19 03:52:28 rjbs Exp $
 
 =head1 SYNOPSIS
 
@@ -69,7 +68,7 @@ sub new {
 	bless { sides => $sides } => $class;
 }
 
-=head2 C<< sides( [$sides] ) >>
+=head2 C<< sides >>
 
 If called without an argument, returns the number of sides the current die
 has.	If called with a numerical argument, sets the number of sides.
@@ -95,7 +94,7 @@ sub roll {
 	my $sides = $self->sides;
 
 	return 0 if $sides == 0;
-	return int(rand($sides)) + 1;
+	return int($sides * rand) + 1;
 }
 
 =head1 TODO

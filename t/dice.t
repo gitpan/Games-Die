@@ -1,4 +1,4 @@
-use Test::More tests => 3008;
+use Test::More tests => 3009;
 
 use strict;
 use warnings;
@@ -6,8 +6,11 @@ use warnings;
 BEGIN { use_ok('Games::Die::Dice'); }
 
 {
-	my $dice = Games::Die::Dice->new("10e12");
-	is($dice, undef, "10e12 isn't a valid dice spec");
+	our $warning;
+	local $SIG{__WARN__} = sub { $warning = shift };
+	my $dice = Games::Die::Dice->new("10z12");
+	is($dice, undef, "10z12 isn't a valid dice spec");
+	like($warning, qr/non-negative/, "got correct warning");
 }
 
 {
