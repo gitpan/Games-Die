@@ -1,0 +1,48 @@
+Games::Die
+===========
+
+Version: 0.01
+
+
+
+Overview:
+
+This module simulates rolling a die.  Also included is Games::Die::Dice which
+provides a union of an arbitrary number of dice wihch may be rolled together,
+as a group.
+
+
+
+License:
+
+This program is free software; you can redistribute it and/or modify
+it under the same terms as Perl itself.
+
+
+
+Example:
+
+use Games::Die;
+$die = new Games::Die(6); # 1d6
+$value = $die->roll;
+
+use Games::Die::Dice;
+$dice = new Games::Die::Dice(8, 8); # 2d8
+@values = $dice->roll;
+
+$dice2 = new Games::Die::Dice(5,17,42); # !???
+
+
+
+Todo:
+
+perldoc documentation
+D&D-style dice roll specifications ("1d6", "2d8", etc.)
+
+
+
+Authors:
+
+  Andrew Burke				burke@bitflood.org
+  Jeremy Muhlich (CPANID: JMUHLICH)	jmuhlich@bitflood.org
+
