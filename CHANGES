@@ -1,3 +1,8 @@
+0.05 - minor bug in adjust behavior
+==========
+- Push adjust value onto roll() return list only if adjust is non-zero,
+  instead of always pushing it as before (Ricardo)
+
 0.04 - fixed minus-one bug, added +/- modfifiers
 ==========
 - Fixed bug where a die would never roll its maximum value.  I introduced

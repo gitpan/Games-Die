@@ -25,7 +25,7 @@ die if the mood strikes you.  There is no limit to the number of sides.
 use strict;
 use vars qw($VERSION);
 
-$VERSION = 0.04;
+$VERSION = 0.05;
 
 =head1 CONSTRUCTOR
 

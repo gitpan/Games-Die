@@ -70,7 +70,8 @@ sub new {
 roll()
 
 Rolls each die in the set.  In scalar context, returns the sum.  In list
-context, returns the list of values that came up on each die.
+context, returns the list of values that came up on each die (and also
+the adjust value if specified).
 
 =cut
 
@@ -81,7 +82,7 @@ sub roll {
   foreach my $die (@{$self->{diceset}}) {
     push(@values, $die->roll());
   }
-  push @values, $self->{adjust};
+  push @values, $self->{adjust} if $self->{adjust};
 
   if (wantarray) {
     return @values;
