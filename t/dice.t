@@ -1,35 +1,33 @@
-use Test::More tests => 3009;
+use Test::More tests => 4013;
 
 use strict;
 use warnings;
 
-BEGIN { use_ok('Games::Die::Dice'); }
+BEGIN { use_ok('Games::Dice'); }
 
 {
-	our $warning;
-	local $SIG{__WARN__} = sub { $warning = shift };
-	my $dice = Games::Die::Dice->new("10z12");
+	my $dice = eval { Games::Dice->new("10z12"); };
 	is($dice, undef, "10z12 isn't a valid dice spec");
-	like($warning, qr/non-negative/, "got correct warning");
+
+	like($@, qr/invalid specification/, "got correct exception");
 }
 
 {
-	my @sides = (2, 6, 10);
-	my $dice = new Games::Die::Dice(@sides);
-	isa_ok($dice, 'Games::Die::Dice');
-	cmp_ok($dice->roll, '>', 3, "minimum roll reached");
+	my $dice = eval { Games::Dice->new(dice => [ bless {} => 'Widget' ]); };
+	is($dice, undef, "passed an unrollable die");
 
-	SKIP: for my $i (1 .. 1000) {
-		my @roll = $dice->roll;
-		skip "one broke", (1000 - $i) unless roll_ok(\@roll, \@sides);
-	}
+	like($@, qr/invalid object/, "got correct exception");
+}
+
+{
+	my $dice = Games::Dice->new(dice => []);
+	is($dice, undef, "dice must have at least one die");
 }
 
 {
 	my @sides = (20) x 6;
-	my $dice = new Games::Die::Dice('6d20');
-	isa_ok($dice, 'Games::Die::Dice');
-	cmp_ok($dice->roll, '>', 6, "minimum roll reached");
+	my $dice = Games::Dice->new('6d20');
+	isa_ok($dice, 'Games::Dice');
 
 	SKIP: for my $i (1 .. 1000) {
 		my @roll = $dice->roll;
@@ -39,8 +37,8 @@ BEGIN { use_ok('Games::Die::Dice'); }
 
 {
 	my @sides = (6) x 3;
-	my $dice = Games::Die::Dice->new("3d6+1");
-	isa_ok($dice,"Games::Die::Dice");
+	my $dice = Games::Dice->new("3d6+1");
+	isa_ok($dice,"Games::Dice");
 	cmp_ok($dice->roll, '>', 4, "minimum roll reached");
 
 	SKIP: for my $i (1 .. 1000) {
@@ -48,7 +46,32 @@ BEGIN { use_ok('Games::Die::Dice'); }
 		skip "one broke", (1000 - $i)
 			unless roll_ok(\@roll, \@sides, { adjust => 1 });
 	}
+}
 
+{
+	my @sides = (6) x 3;
+	my $dice = Games::Dice->new(dice => \@sides, adjust => 1);
+	isa_ok($dice,"Games::Dice");
+	cmp_ok($dice->roll, '>', 4, "minimum roll reached");
+
+	SKIP: for my $i (1 .. 1000) {
+		my @roll = $dice->roll;
+		skip "one broke", (1000 - $i)
+			unless roll_ok(\@roll, \@sides, { adjust => 1 });
+	}
+}
+
+{
+	my @sides = (6) x 3;
+	my $dice = Games::Dice->new(dice => [ map { Games::Die->new(sides => 6) } (0 .. 2) ]);
+	isa_ok($dice,"Games::Dice");
+	cmp_ok($dice->roll, '>', 4, "minimum roll reached");
+
+	SKIP: for my $i (1 .. 1000) {
+		my @roll = $dice->roll;
+		skip "one broke", (1000 - $i)
+			unless roll_ok(\@roll, \@sides, { adjust => 1 });
+	}
 }
 
 sub roll_ok {
@@ -87,7 +110,6 @@ sub roll_ok {
 		diag "total roll ($total) falls short of  minimum ($minimum)";
 		undef $ok;
 	}
-
 
   return ok($ok);
 }

@@ -1,4 +1,6 @@
 package Games::Die;
+use base qw(Class::Container);
+use Params::Validate qw(:types);
 
 use strict;
 use warnings;
@@ -6,84 +8,77 @@ use warnings;
 use Carp;
 
 use vars qw($VERSION);
-$VERSION = '0.07_01';
+$VERSION = '0.99_01';
 
 =head1 NAME
 
-Games::Die - a die; you can roll it!
+Games::Die - it's a die; you can roll it!
 
 =head1 VERSION
 
-version 0.07.01
+version 0.99_01
 
  $Id: Die.pm,v 1.5 2004/10/19 03:52:28 rjbs Exp $
 
 =head1 SYNOPSIS
 
-	$six_sided = new Games::Die(6);
+	$six_sided = Games::Die->new(sides => 6);
 
-	$twenty_sided = new Games::Die();
-	$twenty_sided->sides(20);
+	$twenty_sided = Games::Die->new(20);
+	$twenty_sided->sides; # 20
 
-	$result = $six_sided->roll() + $twenty_sided->roll();
+	$total = $six_sided->roll() + $twenty_sided->roll();
 
 =head1 DESCRIPTION
 
-Games::Die provides an object-oriented implementation of a die.	The die may
-contain any number of sides, not just those for which a physical
-implementation is possible/feasible.	You can create a 7-, 29-, or 341-sided
-die if the mood strikes you.	There is no limit to the number of sides.
+Games::Die provides an object-oriented implementation of a polyhedral die that
+can be rolled.
+
+
 
 =head1 METHODS
 
 =cut
 
-# _sides_ok($sides)
-#
-# T if sides is valid number of sides; F otherwise
+=head2 C<< new(sides => $sides) >>
 
-my $integer = qr/^\d+$/;
-sub _sides_ok {
-	my ($class, $sides) = @_;
-	unless ($sides =~ $integer) {
-		carp "number of sides not a non-negative integer";
-		return;
-	}
-	return 1
-}
+This method creates and returns a new Die.	The number of sides must be an
+integer greater than zero.  If you only need to pass C<sides>, you can omit the
+name, as follows:
 
-=head2 C<< new($sides) >>
+ my $d6 = Games::Die->new(6);
 
-This method creates and returns a new Die.	The number of sides must be a
-non-negative integer.
+Other parameters will probably appear only in subclasses of Games::Die.
 
 =cut
 
+__PACKAGE__->valid_params(
+  sides => { type  => SCALAR,
+             regex => qr/\A\d+\Z/,
+             callbacks => { 'greater than 0' => sub { no warnings; shift() > 0 } }
+           }
+);
+
 sub new {
-	my $class = shift;
-	my $sides = shift;
+  my $class = shift;
+  unshift @_, "sides" if @_ == 1;
 
-	return unless $class->_sides_ok($sides);
-
-	bless { sides => $sides } => $class;
+  $class->SUPER::new(@_);
 }
 
-=head2 C<< sides >>
+=head2 C<< $die->sides() >>
 
-If called without an argument, returns the number of sides the current die
-has.	If called with a numerical argument, sets the number of sides.
+This method returns the number of sides on this die.
 
 =cut
 
 sub sides {
-	my $self = shift;
-	return $self->{sides} unless @_;
-	my $sides = shift;
-	return unless $self->_sides_ok($sides);
-	$self->{sides} = $sides;
+  my ($self) = @_;
+  croak "can't change sidedness of die" if @_ > 1;
+  $self->{sides};
 }
 
-=head2 C<< roll >>
+=head2 C<< $die->roll() >>
 
 Rolls the die and returns the number that came up.
 
@@ -91,39 +86,21 @@ Rolls the die and returns the number that came up.
 
 sub roll {
 	my $self  = shift;
-	my $sides = $self->sides;
 
-	return 0 if $sides == 0;
-	return int($sides * rand) + 1;
+	return int($self->sides * rand) + 1;
 }
 
 =head1 TODO
 
-=over 4
-
-=item * more extensive validation of parameters
-
-=item * improved access to members of a Dice set
-
-=item * return results as a Results object; last results cached on the Dice
-
-=back
-
-=head1 THANKS
-
-...to Dave Ranney, for finding the stupid minus-one bug in roll() in 0.03
-
-...to Thomas R. Sibley, for pointing out the poor roll() implementation in 0.02
+see L<Games::Dice>
 
 =head1 AUTHORS
 
-Andrew Burke <C<burke@bitflood.org>>
-
-Jeremy Muhlich <C<jmuhlich@bitflood.org>>
-
-Ricardo SIGNES <C<rjbs@cpan.org>>
+Ricardo SIGNES E<lt>C<rjbs@cpan.org>E<gt>
 
 =head1 LICENSE
+
+Copyright (C) 2005, Ricardo SIGNES.
 
 This library is free software; you can redistribute it and/or modify it under
 the same terms as Perl itself.
