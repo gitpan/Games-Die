@@ -1,4 +1,13 @@
-README for Games-Die
 
-This module simulates rolling a die.  Also included is Games::Die::Dice which
-provides a set of dice that may be rolled together.
+
+This archive contains the distribution Games-Die,
+version 0.1:
+
+  Program that simulates ADVANCED die rolls using a grammar.
+
+This software is copyright (c) 2010 by Valerio Crini.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+
